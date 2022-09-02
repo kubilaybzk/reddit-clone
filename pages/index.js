@@ -8,7 +8,6 @@ export default function Home() {
       <Head>
         <title>RedditClone</title>
       </Head>
-      <Header />
     </div>
   );
 }
