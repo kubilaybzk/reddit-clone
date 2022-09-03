@@ -10,7 +10,7 @@ const client = new ApolloClient({
   // Burada dışarıya açık olanı kullanalım.
   uri: "https://liege.stepzen.net/api/iced-bison/__graphql",
   headers: {
-    Authorization: `Apikey ${process.env.NEXT_PUBLİC_STEPZEN_KEY}`,
+    Authorization: `Apikey liege::stepzen.net+1000::dd6d238aaaf57b731c5ad36ea18dd289af2b5631a82cfbd0f294b6f1d98f704f`,
   },
   cache: new InMemoryCache(),
 });

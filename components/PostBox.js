@@ -3,7 +3,10 @@ import { useSession, signIn, signOut } from "next-auth/react";
 import Avatar from "./Avatar";
 import { PhotographIcon, LinkIcon } from "@heroicons/react/outline";
 import { useForm } from "react-hook-form";
-
+import { useMutation } from "@apollo/client";
+import { ADD_POST, ADD_SUBREDDİT } from "../graphql/mutations";
+import client from "../apollo-client";
+import { GET_SUBREDDIT_BY_TOPIC } from "../graphql/queries";
 function PostBox() {
   const { data: session } = useSession();
   const {
@@ -13,15 +16,79 @@ function PostBox() {
     formState: { errors },
   } = useForm();
 
+  const [addPost] = useMutation(ADD_POST);
+  const [addSubreddit]=useMutation(ADD_SUBREDDİT);
+
   const [openImageBox, setOpenImageBox] = useState(false);
 
+  const onSubmit = handleSubmit(async (FormData) => {
+    console.log(FormData);
+    //Subredit daha önce var mı kontrol etmeliyiz varsa oluşturma yoksa oluştur.
+    try {
+      const { data } = await client.query({
+        query: GET_SUBREDDIT_BY_TOPIC,
+        variables: {
+          topic: FormData.SubReddit,
+        },
+      });
 
-const onSubmit=handleSubmit(async(FormData)=>{
-    console.log(FormData)
-})
+      const { getSubredditListByTopic } = data;
+      const subredditcreated=getSubredditListByTopic.length>0;
+      console.log(getSubredditListByTopic)
+      console.log(subredditcreated)
+      if(subredditcreated){
+        //insert exist subredit.
+        console.log("daha önce var olan")
+        const image=FormData.İmageUrl || "";
+        const x=await addPost({
+          variables:{
+            body: FormData.PostBody,
+            image: image,
+            subreddit_id: getSubredditListByTopic[0].id, //Burada o an eklenen son subredit'in id adresini tanımladık.
+            title: FormData.PostTitle,
+            username: session.user.name
+          }
+        })
+
+      }
+      else{
+        //create new subredit.
+        console.log("yeni bir subreddit oluşturuluyor.")
+        const {data}=await addSubreddit({
+          variables:{
+            topic:FormData.SubReddit
+          }
+        })
+        //Ekledikten sonra bu eklenen değeri bizim bir şekilde  hafızamızda tutmamız lazım.
+        //Bu sayede konuyu ona entegre edebilelim.
+
+        const image=FormData.İmageUrl || "";
+        const id=data.insertSubreddit.id
+        console.log(id)
+        const x=await addPost({
+          variables:{
+            body: FormData.PostBody,
+            image: image,
+            subreddit_id: id, //Burada o an eklenen son subredit'in id adresini tanımladık.
+            title: FormData.PostTitle,
+            username: session.user.name
+          }
+        })
+        console.log(x.data.insertPost)
+      }
+    } 
+    
+    
+    catch (error) {
+      console.log("error" ,error);
+    }
+  });
 
   return (
-    <form  onSubmit={onSubmit} className=" sticky top-16 z-50 rounded bg-white border-gray-300 p-2 mt-6 ">
+    <form
+      onSubmit={onSubmit}
+      className=" sticky top-16 z-50 rounded bg-white border-gray-300 p-2 mt-6 "
+    >
       <div className="flex items-center space-x-3">
         <Avatar />
         <input
@@ -69,7 +136,7 @@ const onSubmit=handleSubmit(async(FormData)=>{
                 <p className="min-w-[90px]">İmageUrl:</p>
                 <input
                   className="m-2 flex-1 bg-blue-50 p-2 outline-none"
-                  {...register("SubReddit")}
+                  {...register("İmageUrl")}
                   type="text"
                   placeholder="Optional"
                 />
@@ -89,9 +156,12 @@ const onSubmit=handleSubmit(async(FormData)=>{
           )}
         </div>
       )}
-      {!!watch("PostTitle")&&(
-        <button type="submit" className="w-full bg-blue-400 p-2 rounded text-white">
-            Create Post
+      {!!watch("PostTitle") && (
+        <button
+          type="submit"
+          className="w-full bg-blue-400 p-2 rounded text-white"
+        >
+          Create Post
         </button>
       )}
     </form>
