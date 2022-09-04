@@ -8,7 +8,7 @@ export default function Avatar({seed,large}) {
         <Image
         layout='fill'
         objectFit='contain'
-        src={ `https://avatars.dicebear.com/api/open-peeps/ ${session?.user?.name || seed || 'placeholder'}.svg`}/>
+        src={ `https://avatars.dicebear.com/api/open-peeps/ ${ seed || session?.user?.name || 'placeholder'}.svg`}/>
     </div>
   )
 }

@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Feed from "../components/Feed";
 import Header from "../components/Header";
 import PostBox from "../components/PostBox";
 
@@ -9,6 +10,9 @@ export default function Home() {
         <title>RedditClone</title>
       </Head>
       <PostBox />
+      <div className="flex">
+        <Feed/>
+      </div>
     </div>
   );
 }

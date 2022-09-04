@@ -108,14 +108,16 @@ type Query {
       configuration: "postgresql_config"
     )
 
-  getSubredditListByTopic(topic: String!): [Subreddit]
+
+getSubredditListByTopic(topic:String!): [Subreddit]
     @dbquery(
       type: "postgresql"
-      query: """
+      query:"""
       select * from "subreddit" where "topic"=$1
       """
       configuration: "postgresql_config"
     )
+
 
   getSubreddit(id: ID!): Subreddit
     @dbquery(
@@ -189,6 +191,9 @@ type Mutation {
       dml: INSERT
       configuration: "postgresql_config"
     )
+
+
+
 
   deletePost(id: ID!): Post
     @dbquery(

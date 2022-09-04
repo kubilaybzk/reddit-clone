@@ -7,6 +7,7 @@ import { useMutation } from "@apollo/client";
 import { ADD_POST, ADD_SUBREDDİT } from "../graphql/mutations";
 import client from "../apollo-client";
 import { GET_SUBREDDIT_BY_TOPIC } from "../graphql/queries";
+import toast from "react-hot-toast";
 function PostBox() {
   const { data: session } = useSession();
   const {
@@ -38,7 +39,7 @@ function PostBox() {
       console.log(subredditcreated)
       if(subredditcreated){
         //insert exist subredit.
-        console.log("daha önce var olan")
+        const notification=toast.loading(`${FormData.SubReddit} is already exist`)
         const image=FormData.İmageUrl || "";
         const x=await addPost({
           variables:{
@@ -49,11 +50,12 @@ function PostBox() {
             username: session.user.name
           }
         })
-
+        toast.success(`Konunuz ${FormData.SubReddit} altına eklendi.`,{id:notification})
       }
       else{
         //create new subredit.
-        console.log("yeni bir subreddit oluşturuluyor.")
+        const notification=toast.loading(`${FormData.SubReddit} isminde bir subreddit bulunamadı.`)
+        toast.loading(`${FormData.SubReddit} Yeni bir subreddit oluşturuluyor`,{id:notification})
         const {data}=await addSubreddit({
           variables:{
             topic:FormData.SubReddit
@@ -74,13 +76,13 @@ function PostBox() {
             username: session.user.name
           }
         })
-        console.log(x.data.insertPost)
+        toast.success(`${FormData.PostTitle} başarıyla post edildi.`,{id:notification})
       }
     } 
     
     
     catch (error) {
-      console.log("error" ,error);
+      toast.error(`Bir şeyler yanlış gitti .`,{id:notification})
     }
   });
 
